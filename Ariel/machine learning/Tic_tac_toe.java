@@ -1,11 +1,11 @@
 import java.io.PrintWriter;
 
 public class Tic_tac_toe {
-	public static final int BOARD_SIZE = 5;
+	public static final int BOARD_SIZE = 3;
 	
 	public static void main(String[] args) {
 		char[][] board;
-		Trainer train = new Trainer(25, new int[] {BOARD_SIZE * BOARD_SIZE * 2, 40, 30, BOARD_SIZE * BOARD_SIZE});
+		Trainer train = new Trainer(50, new int[] {BOARD_SIZE * BOARD_SIZE * 2, 14, BOARD_SIZE * BOARD_SIZE});
 		
 		for(int gener=0 ; gener<10000 ; gener++) {
 			float[] score = new float[train.bn.length];
@@ -39,7 +39,7 @@ public class Tic_tac_toe {
 						
 					 	if( win('x', board) ) {
 					 		score[test]+=2;
-					 		score[another]-=5;
+					 		score[another]-=7;
 					 		break;
 					 	}
 					 	
@@ -67,7 +67,7 @@ public class Tic_tac_toe {
 						
 					 	if( win('o', board) ) {
 					 		score[another]+=2;
-					 		score[test]-=5;
+					 		score[test]-=7;
 					 		break;
 					 	}
 					}

@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class Playtic_tac_toe {
-	public static final int BOARD_SIZE = 3;
+	public static final int BOARD_SIZE = 5;
 	
 	public static void main(String[] args) {
 		char[][] board = new char[BOARD_SIZE][BOARD_SIZE];
@@ -18,7 +18,7 @@ public class Playtic_tac_toe {
 		
 		String best = "";
 		try {
-			best = Files.readAllLines(Paths.get("network.nn"), Charset.forName("UTF-8")).get(0);
+			best = Files.readAllLines(Paths.get("5x5network.nn"), Charset.forName("UTF-8")).get(0);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -26,50 +26,84 @@ public class Playtic_tac_toe {
 		
 		BasicNetwork network = new BasicNetwork(best);
 		
-		for(int turn=0 ; turn< BOARD_SIZE * BOARD_SIZE / 2 + 1; turn++) {
-			float[] datax = network.output( board(board, 'x') );
-			
-			for(int k=0 ; k<datax.length ; k++) {
-				float high=Float.NEGATIVE_INFINITY;
-				int ihigh=0;
-				for(int i=0 ; i<datax.length ; i++) {
-					if(high < datax[i]) {
-						ihigh = i;
-						high = datax[i];
-					}
-				}
-				datax[ihigh] = Float.NEGATIVE_INFINITY;
+		char choose = sc.nextLine().charAt(0);
+		
+		if(choose == 'o') {
+			for(int turn=0 ; turn< BOARD_SIZE * BOARD_SIZE / 2 + 1; turn++) {
+				netturn(network, board, 'x');
 				
-				int i=ihigh/BOARD_SIZE;
-				int j=ihigh%BOARD_SIZE;
+				for(int w=0 ; w<board.length ; w++)
+			 		System.out.println( Arrays.toString(board[w]) );
 				
-				if(board[i][j] != 'x' && board[i][j] != 'o') {
-					board[i][j] = 'x';
-					break;
-				}
+			 	if( win('x', board) ) {
+			 		System.out.println("The Network Won!");
+			 		break;
+			 	}
+				
+			 	int pos = sc.nextInt() - 1;
+			 	int i=pos/BOARD_SIZE;
+				int j=pos%BOARD_SIZE;
+				
+				board[i][j]='o';
+				
+			 	if( win('o', board) ) {
+			 		System.out.println("You Won!");
+			 		break;
+			 	}
 			}
-			
+		}else {
 			for(int w=0 ; w<board.length ; w++)
 		 		System.out.println( Arrays.toString(board[w]) );
 			
-		 	if( win('x', board) ) {
-		 		System.out.println("The Network Won!");
-		 		break;
-		 	}
-			
-		 	int pos = sc.nextInt() - 1;
-		 	int i=pos/BOARD_SIZE;
-			int j=pos%BOARD_SIZE;
-			
-			board[i][j]='o';
-			
-		 	if( win('o', board) ) {
-		 		System.out.println("You Won!");
-		 		break;
-		 	}
+			for(int turn=0 ; turn< BOARD_SIZE * BOARD_SIZE / 2 + 1; turn++) {
+				
+				int pos = sc.nextInt() - 1;
+			 	int i=pos/BOARD_SIZE;
+				int j=pos%BOARD_SIZE;
+				
+				board[i][j]='x';
+				
+			 	if( win('x', board) ) {
+			 		System.out.println("You Won!");
+			 		break;
+			 	}
+				
+				netturn(network, board, 'o');
+
+				for(int w=0 ; w<board.length ; w++)
+			 		System.out.println( Arrays.toString(board[w]) );
+				
+			 	if( win('o', board) ) {
+			 		System.out.println("The Network Won!");
+			 		break;
+			 	}
+			}
 		}
 		
 		sc.close();
+	}
+	public static void netturn(BasicNetwork network,char[][] board, char piece) {
+		float[] datax = network.output( board(board, piece) );
+		
+		for(int k=0 ; k<datax.length ; k++) {
+			float high=Float.NEGATIVE_INFINITY;
+			int ihigh=0;
+			for(int i=0 ; i<datax.length ; i++) {
+				if(high < datax[i]) {
+					ihigh = i;
+					high = datax[i];
+				}
+			}
+			datax[ihigh] = Float.NEGATIVE_INFINITY;
+			
+			int i=ihigh/BOARD_SIZE;
+			int j=ihigh%BOARD_SIZE;
+			
+			if(board[i][j] != 'x' && board[i][j] != 'o') {
+				board[i][j] = piece;
+				break;
+			}
+		}
 	}
 	public static float[] board(char[][] board, char piece) {
 		float[] board2 = new float[BOARD_SIZE * BOARD_SIZE * 2];
